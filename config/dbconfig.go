@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"database/sql"
@@ -11,6 +11,9 @@ func ConnectDB() *sql.DB {
 	db, err:= sql.Open("sqlite3", "hello.db")
 	if err != nil {
 		log.Fatal(err)
+	}
+	if errPing := db.Ping(); errPing != nil {
+		log.Panic(errPing)
 	}
 
 	return db
