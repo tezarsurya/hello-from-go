@@ -9,14 +9,13 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+var user models.User
+
 func GetUsers(c *gin.Context) {
-	var user models.User
 	c.JSON(http.StatusOK, user.GetAll())
 }
 
 func CreateUser(c *gin.Context) {
-	var user models.User
-
 	if errBind := c.ShouldBindJSON(&user); errBind != nil {
 		var errValidation []gin.H
 		for _, err := range errBind.(validator.ValidationErrors) {
@@ -47,14 +46,9 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	result := user.Create()
-	insertID, _ := result.LastInsertId()
-	user = models.User{
-		Email: user.Email,
+	if !user.Create() {
+		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"inserted id": insertID,
-		"data":        user,
-	})
+	c.AbortWithStatus(http.StatusCreated)
 }
