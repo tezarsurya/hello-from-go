@@ -2,7 +2,6 @@ package models
 
 import (
 	"hello-from-go/config"
-	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -49,8 +48,7 @@ func (u *User) Create() bool {
 		panic(errHash)
 	}
 
-	created := time.Now()
-	_, errExec := db.Exec("INSERT INTO users (email, password, created_at, updated_at) VALUES (?, ?, ?, ?)", u.Email, string(hashP), created, created)
+	_, errExec := db.Exec("INSERT INTO users (email, password, created_at, updated_at) VALUES (?, ?, datetime('now'), datetime('now'))", u.Email, string(hashP))
 	return errExec == nil
 }
 
