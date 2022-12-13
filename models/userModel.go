@@ -6,15 +6,14 @@ import (
 )
 
 type User struct {
-	ID 				uint			`json:"id,omitempty"`		
-	Email 		string		`json:"email" binding:"required"`
-	Password 	string		`json:"password,omitempty" binding:"required"`
+	ID       uint   `json:"id,omitempty"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password,omitempty" binding:"required,min=8"`
 }
 
 var db = config.ConnectDB()
 
-func GetAllUsers() []User {
-	var user User
+func (u *User) GetAll() []User {
 	var users []User
 
 	rows, err := db.Query("SELECT * FROM users")
@@ -23,26 +22,26 @@ func GetAllUsers() []User {
 	}
 
 	for rows.Next() {
-		errScan := rows.Scan(&user.ID, &user.Email, &user.Password)
+		errScan := rows.Scan(&u.ID, &u.Email, &u.Password)
 		if errScan != nil {
 			panic(errScan)
 		}
-		user = User{
-			Email: user.Email,
-			Password: user.Password,
+		*u = User{
+			Email:    u.Email,
+			Password: u.Password,
 		}
-		users = append(users, user)
+		users = append(users, *u)
 	}
 
 	return users
 }
 
-func NewUser(newUser User) (sql.Result, error) {
-	result, err := db.Exec("INSERT INTO users (email, password) VALUES (?, ?)", newUser.Email, newUser.Password)
+func (u *User) Create() sql.Result {
+	result, err := db.Exec("INSERT INTO users (email, password) VALUES (?, ?)", u.Email, u.Password)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	return result, nil
+	return result
 }
 
 func CheckEmail(user User) bool {
