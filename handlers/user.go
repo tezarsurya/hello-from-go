@@ -27,7 +27,7 @@ func CreateUser(c *gin.Context) {
 				message = fmt.Sprintf("%s is required", err.Field())
 			case "email":
 				message = fmt.Sprintf("%s is invalid", err.Field())
-			case "min":
+			default:
 				message = fmt.Sprintf("%s must be at least %s characters long", err.Field(), err.Param())
 			}
 
