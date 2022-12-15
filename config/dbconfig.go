@@ -8,12 +8,12 @@ import (
 )
 
 func ConnectDB() *sql.DB {
-	db, err:= sql.Open("sqlite3", "hello.db")
+	db, err := sql.Open("sqlite3", "hello.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 	if errPing := db.Ping(); errPing != nil {
-		log.Panic(errPing)
+		log.Panicln(errPing)
 	}
 
 	return db
