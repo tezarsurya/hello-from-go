@@ -36,7 +36,7 @@ func Login(c *gin.Context) {
 	claims := &jwt.RegisteredClaims{
 		Issuer:    cred.Email,
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 2)),
-		NotBefore: &jwt.NumericDate{}, IssuedAt: jwt.NewNumericDate(time.Now()),
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signed, errToken := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
