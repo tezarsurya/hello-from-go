@@ -2,6 +2,7 @@ package models
 
 import (
 	"hello-from-go/config"
+	"log"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -22,13 +23,13 @@ func (u *User) GetAll() []User {
 
 	rows, err := db.Query("SELECT * FROM users")
 	if err != nil {
-		panic(err)
+		log.Panicln(err)
 	}
 
 	for rows.Next() {
 		errScan := rows.Scan(&u.ID, &u.Email, &u.Password, &u.CreatedAt, &u.UpdatedAt, &u.DeletedAt)
 		if errScan != nil {
-			panic(errScan)
+			log.Panicln(errScan)
 		}
 		*u = User{
 			ID:        u.ID,
@@ -45,16 +46,16 @@ func (u *User) GetAll() []User {
 func (u *User) Create() bool {
 	hashP, errHash := bcrypt.GenerateFromPassword([]byte(u.Password), 10)
 	if errHash != nil {
-		panic(errHash)
+		log.Panicln(errHash)
 	}
 
 	_, errExec := db.Exec("INSERT INTO users (email, password, created_at, updated_at) VALUES (?, ?, datetime('now'), datetime('now'))", u.Email, string(hashP))
 	return errExec == nil
 }
 
-func CheckEmail(user User) bool {
+func EmailExists(user User) bool {
 	var email string
 	checkEmail := db.QueryRow("SELECT email FROM users WHERE email = ?", user.Email)
 	checkEmail.Scan(&email)
-	return email == ""
+	return email != ""
 }

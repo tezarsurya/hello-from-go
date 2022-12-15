@@ -20,7 +20,6 @@ func CreateUser(c *gin.Context) {
 		var errValidation []gin.H
 		for _, err := range errBind.(validator.ValidationErrors) {
 			var message string
-
 			switch err.Tag() {
 			case "required":
 				message = fmt.Sprintf("%s is required", err.Field())
@@ -29,7 +28,6 @@ func CreateUser(c *gin.Context) {
 			default:
 				message = fmt.Sprintf("%s must be at least %s characters long", err.Field(), err.Param())
 			}
-
 			errValidation = append(errValidation, gin.H{
 				"field": err.Field(),
 				"error": message,
@@ -38,17 +36,14 @@ func CreateUser(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, errValidation)
 		return
 	}
-
-	if !models.CheckEmail(user) {
+	if models.EmailExists(user) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": "email already exists",
 		})
 		return
 	}
-
 	if !user.Create() {
 		return
 	}
-
 	c.AbortWithStatus(http.StatusCreated)
 }
