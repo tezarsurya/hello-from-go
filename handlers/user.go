@@ -12,7 +12,12 @@ import (
 var user models.User
 
 func GetUsers(c *gin.Context) {
-	c.JSON(http.StatusOK, user.GetAll())
+	users := user.GetAll()
+	if len(users) == 0 {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+	c.JSON(http.StatusOK, users)
 }
 
 func CreateUser(c *gin.Context) {
