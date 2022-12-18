@@ -13,6 +13,12 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+type JwtClaims struct {
+	jwt.RegisteredClaims
+	UserId uint   `json:"user_id"`
+	Email  string `json:"email"`
+}
+
 var cred models.Credentials
 
 func Login(c *gin.Context) {
@@ -28,15 +34,21 @@ func Login(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, errValidation)
 		return
 	}
-	if !cred.Login() {
+	id := cred.Login()
+	if id == 0 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid email or password"})
 		return
 	}
 
-	claims := &jwt.RegisteredClaims{
-		Issuer:    cred.Email,
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 2)),
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
+	claims := JwtClaims{
+		jwt.RegisteredClaims{
+			Issuer:    os.Getenv("BASE_URL"),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(2 * time.Hour)),
+		},
+		id,
+		cred.Email,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signed, errToken := token.SignedString([]byte(os.Getenv("JWT_SECRET")))

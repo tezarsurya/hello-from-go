@@ -42,7 +42,9 @@ func AuthRequired() gin.HandlerFunc {
 			return
 		}
 		token = token[7:]
-		parsed, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+
+		var claims handlers.JwtClaims
+		parsed, err := jwt.ParseWithClaims(token, &claims, func(t *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("JWT_SECRET")), nil
 		}, jwt.WithValidMethods(jwt.GetAlgorithms()))
 
