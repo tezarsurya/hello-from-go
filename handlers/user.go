@@ -9,9 +9,8 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-var user models.User
-
 func GetUsers(c *gin.Context) {
+	var user models.User
 	users := user.GetAll()
 	if len(users) == 0 {
 		c.AbortWithStatus(http.StatusNotFound)
@@ -21,6 +20,7 @@ func GetUsers(c *gin.Context) {
 }
 
 func CreateUser(c *gin.Context) {
+	var user models.User
 	if errBind := c.ShouldBindJSON(&user); errBind != nil {
 		var errValidation []gin.H
 		for _, err := range errBind.(validator.ValidationErrors) {
@@ -41,7 +41,8 @@ func CreateUser(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, errValidation)
 		return
 	}
-	if models.EmailExists(user) {
+
+	if user.EmailExists() {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": "email already exists",
 		})
